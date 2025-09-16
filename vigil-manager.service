@@ -5,8 +5,8 @@ Description=Vigil manager service
 Type=simple
 Restart=on-failure
 Environment="PATH=/sbin:/bin:/usr/sbin:/usr/bin"
-ExecStartPre=/usr/env/python3 /usr/local/bin/vigil_config_check.py
-ExecStart=/usr/env/python3 /usr/local/lib/vigil_core.py
+ExecStartPre=/usr/bin/python3 /usr/local/bin/vigil_config_check.py
+ExecStart=/usr/bin/python3 /usr/local/lib/vigil_core.py
 StartLimitInterval=1s
 StartLimitBurst=999
 
