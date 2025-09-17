@@ -24,7 +24,7 @@ def checkUsers():
         if (not userSplit[0] in allowedUsers):
             if (userSplit[0] in blacklistedUsers) or ((userSplit[2] == '0') or (userSplit[3] == '0')):
                 print("Blacklisted user '" + userSplit[0] + "' exists on system!", flush=True)
-            elif (userSplit[2] >= '1000'):
+            elif (int(userSplit[2]) >= 1000):
                 print("Unrecognized user '" + userSplit[0] + "' exists on system!", flush=True)
 
 def checkProcesses():
@@ -52,7 +52,7 @@ def checkIPs():
 
 def getOutputOf(command: str):
     try:
-        result = subprocess.run([command], capture_output=True, text=True, check=True)
+        result = subprocess.run(command, shell=isinstance(command, str), capture_output=True, text=True, check=True)
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
         return e.stderr.strip()
