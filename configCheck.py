@@ -31,7 +31,7 @@ for line in contents:
                 if len(valuesSplit) > 1:
                     errors.append("Multiple values for variable 'bind_ip' on line " + str(lineNum))
             if line[0] == 'bind_port':
-                bindIpPres = True
+                bindPortPres = True
                 if len(line[1]) == 0:
                     errors.append("Missing value for variable 'bind_port' on line " + str(lineNum))
                 elif (int(line[1]) < 1) or (int(line[1]) > 65535):

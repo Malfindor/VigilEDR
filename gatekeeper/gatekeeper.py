@@ -5,22 +5,27 @@ import os
 allowedUsers = []
 blacklistedUsers = []
 allowedIPs = []
-reverseShellFlags = ["python -c", "/bin/sh -i", "/bin/bash -i", "nc .* -e", "ncat .* -e", "socat .* EXEC"]
+reverseShellFlags = ["python -c", "python3 -c", "/bin/sh -i", "/bin/bash -i", "nc .* -e", "ncat .* -e", "socat .* EXEC"]
 
 def run():
     while True:
-
+        processConfigFile()
+        checkUsers()
+        checkProcesses()
+        checkIPs()
         time.sleep(10)
+
 def checkUsers():
     f = open("/etc/passwd", "r")
     users = f.readlines()
     f.close()
     for user in users:
         userSplit = user.split(":")
-        if (userSplit[0] in blacklistedUsers) or ((userSplit[2] == '0') or (userSplit[3] == '0')):
-            print("Blacklisted user '" + userSplit[0] + "' exists on system!", flush=True)
-        elif ((not userSplit[0] in allowedUsers) and (userSplit[2] >= '1000')):
-            print("Unrecognized user '" + userSplit[0] + "' exists on system!", flush=True)
+        if (not userSplit[0] in allowedUsers):
+            if (userSplit[0] in blacklistedUsers) or ((userSplit[2] == '0') or (userSplit[3] == '0')):
+                print("Blacklisted user '" + userSplit[0] + "' exists on system!", flush=True)
+            elif (userSplit[2] >= '1000'):
+                print("Unrecognized user '" + userSplit[0] + "' exists on system!", flush=True)
 
 def checkProcesses():
     processes = getOutputOf("ps aux")
@@ -71,3 +76,6 @@ def processConfigFile():
                 ipsSplit = lineSplit[1].split(",")
                 for ip in ipsSplit:
                     allowedIPs.append(ip.strip())
+
+if __name__ == "__main__":
+    run()
