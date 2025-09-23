@@ -1,11 +1,13 @@
 [Unit]
-Description=Vigil manager service
+Description=Core VigilEDR service
+After=network-online.target
+Wants=network-online.target
 
 [Service]
-Type=simple
+Type=notify
 Restart=on-failure
 Environment="PATH=/sbin:/bin:/usr/sbin:/usr/bin"
-ExecStartPre=/usr/bin/python3 /usr/local/bin/vigil_config_check.py
+ExecCondition=/usr/bin/python3 /usr/local/bin/vigil_config_check.py
 ExecStart=/usr/bin/python3 /usr/local/lib/vigil_core.py
 StartLimitInterval=1s
 StartLimitBurst=999

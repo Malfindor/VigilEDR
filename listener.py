@@ -1,6 +1,7 @@
 #!/usr/env/python3
 import socket
 import os
+import sys
 
 def parseConf():
     conf = ["127.0.0.1", 5678]
@@ -59,7 +60,7 @@ def run():
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind((config[0], int(config[1])))
     sock.listen(5)
-    print('Vigil listener started on ' + config[0] + ':' + str(config[1])'.')
+    print('Vigil listener started on ' + config[0] + ':' + str(config[1]) + '.')
     while True:
         # Accept a connection
         conn, addr = sock.accept()

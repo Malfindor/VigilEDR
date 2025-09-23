@@ -7,6 +7,7 @@ bindPortPres = False
 allowedUsersPres = False
 blacklistedUsersPres = False
 allowedIpsPres = False
+blacklistedServicesPres = False
 if not os.path.exists('/etc/vigil.conf'):
     print("Config file not found. Replace or ensure that the config file is located at /etc/vigil.conf", file=sys.stderr, flush=True)
     sys.exit(2)
@@ -64,6 +65,14 @@ for line in contents:
                         errors.append("Invalid value '" + value + "' for variable 'allowed_ips' on line " + str(lineNum))
                     elif ' ' in value.strip():
                         errors.append("Invalid value '" + value + "' for variable 'allowed_ips' on line " + str(lineNum))
+            if line[0] == 'blacklisted_services':
+                blacklistedServicesPres = True
+                if len(line[1]) == 0:
+                    errors.append("Missing value for variable 'blacklisted_services' on line " + str(lineNum))
+                valuesSplit = line[1].split(',')
+                for value in valuesSplit:
+                    if ' ' in value.strip():
+                        errors.append("Invalid value '" + value + "' for variable 'blacklisted_services' on line " + str(lineNum))
 
 if not bindIpPres:
     errors.append("Missing variable 'bind_ip'")
@@ -75,6 +84,8 @@ if not blacklistedUsersPres:
     errors.append("Missing variable 'blacklisted_users'")
 if not allowedIpsPres:
     errors.append("Missing variable 'allowed_ips'")
+if not blacklistedServicesPres:
+    errors.append("Missing variable 'blacklisted_services'")
 
 if not len(errors) == 0:
     for error in errors:
