@@ -1,23 +1,47 @@
 import subprocess
 from time import sleep
 import os
+import threading
+import signal
 from typing import Union, Sequence
+from systemd.daemon import notify
 
+stop = False
 allowedUsers = []
 blacklistedUsers = []
 allowedIPs = []
 blacklistedServices = []
 reverseShellFlags = ["python -c", "python3 -c", "/bin/sh -i", "/bin/bash -i", "nc * -e", "ncat * -e", "socat * EXEC"]
 
+def handle_sigterm(signum, frame):
+    global stop; stop = True
+
+signal.signal(signal.SIGTERM, handle_sigterm)
+signal.signal(signal.SIGINT, handle_sigterm)
+
+notify("READY=1")
+notify("STATUS=Initializing…")
+
+def pump():
+    while not stop and interval:
+        notify("WATCHDOG=1")
+        sleep(interval)
+
+threading.Thread(target=pump, daemon=True).start()
+
+wd_usec = os.getenv("WATCHDOG_USEC")
+interval = max(int(int(wd_usec)/2/1_000_000), 1) if wd_usec else None
+
 def run():
     processConfigFile()
-    while True:
+    while not stop:
         checkUsers()
         checkProcesses()
         checkIPs()
         checkCrontab()
         checkServices()
         sleep(10)
+    notify("STOPPING=1")
 
 def checkUsers():
     f = open("/etc/passwd", "r")
@@ -58,7 +82,7 @@ def checkCrontab():
     f = open("/etc/crontab", "r")
     contents = f.read()
     f.close()
-    if len(contents > 0):
+    if len(contents) > 0:
         if (contents != "\n"):
             print("Contents found in /etc/crontab:" + contents, flush=True)
 
@@ -84,16 +108,18 @@ def getOutputOf(command: Union[str, Sequence[str]]) -> str:
             result = subprocess.run(
                 command,
                 shell=True,
-                capture_output=True,
-                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
                 check=True,
             )
         else:
             result = subprocess.run(
                 command,
                 shell=False,
-                capture_output=True,
-                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
                 check=True,
             )
         return result.stdout.strip()
