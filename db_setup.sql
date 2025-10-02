@@ -1,0 +1,23 @@
+IF DB_ID('Vigil_DB') IS NULL
+    CREATE DATABASE [Vigil_DB];
+GO
+
+USE [Vigil_DB];
+GO
+
+CREATE TABLE Agents (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ip VARCHAR(45) NOT NULL,
+    last_heard_time DATETIME2
+);
+GO
+
+CREATE TABLE Alerts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ingest_time DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    agent_id INT NOT NULL,
+    time DATETIME2 NOT NULL,
+    message NVARCHAR(MAX),
+    CONSTRAINT FK_Alerts_Agents FOREIGN KEY (agent_id) REFERENCES Agents(id) ON DELETE CASCADE
+);
+GO

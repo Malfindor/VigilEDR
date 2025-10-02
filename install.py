@@ -19,6 +19,11 @@ def beginClientInstall():
     if os.path.exists('/usr/local/vigil'):
         print("Vigil appears to already be installed. If this is an error, remove /usr/local/vigil, then try again.", flush=True)
         exit(1)
+    print("Installing dependences", flush=True)
+    if os.path.exists('/usr/bin/apt'):
+        os.system('apt install -y python3 python3-pip')
+    elif os.path.exists('/usr/bin/yum'):
+        os.system('yum install -y python3 python3-pip')
     os.system('mkdir -p /usr/local/vigil')
     os.system('mkdir -p /root/quarantined_services')
     os.rename('./vigil.conf', '/etc/vigil.conf')
@@ -28,6 +33,20 @@ def beginClientInstall():
     os.system('systemctl daemon-reload')
     os.system('systemctl enable vigil.service')
     os.system('systemctl start vigil.service')
+
+def beginServerInstall():
+    print("Beginning Vigil manager installation", flush=True)
+    print("Installing dependences", flush=True)
+    if os.path.exists('/usr/bin/apt'):
+        os.system('apt install -y mariadb')
+    elif os.path.exists('/usr/bin/yum'):
+        os.system('yum install -y mariadb')
+    os.system('systemctl enable mariadb')
+    os.system('systemctl start mariadb')
+    print("Please enter the MariaDB root password when prompted to set up the Vigil database.", flush=True)
+    os.system('mysql -u root < ./db_setup.sql')
+    print("Installing local client", flush=True)
+    beginClientInstall()
 
 if not os.geteuid() == 0:
     print("This script must be run as root.", flush=True)
