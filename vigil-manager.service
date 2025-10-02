@@ -7,8 +7,8 @@ Wants=network-online.target
 Type=notify
 Restart=on-failure
 Environment="PATH=/sbin:/bin:/usr/sbin:/usr/bin"
-ExecCondition=/usr/bin/python3 /usr/local/bin/vigil_config_check.py
-ExecStart=/usr/bin/python3 /usr/local/lib/vigil_core.py
+ExecCondition=/usr/bin/python3 /usr/local/vigil/configCheck.py
+ExecStart=/usr/bin/python3 /usr/local/vigil/core.py
 StartLimitInterval=1s
 StartLimitBurst=999
 

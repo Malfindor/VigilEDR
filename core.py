@@ -1,6 +1,7 @@
 import subprocess
 from time import sleep
 import os
+from typing import Union, Sequence
 
 allowedUsers = []
 blacklistedUsers = []
@@ -73,12 +74,31 @@ def checkServices():
                 os.system("systemctl disable " + serviceName)
                 os.system("mv /etc/systemd/system/" + serviceName + " /root/quarantined_services/")
 
-def getOutputOf(command: str):
+def getOutputOf(command: Union[str, Sequence[str]]) -> str:
+    """
+    Run a command and return stdout (or stderr if the command fails).
+    Accepts either a shell string or a list argv.
+    """
     try:
-        result = subprocess.run(command, shell=isinstance(command, str), capture_output=True, text=True, check=True)
+        if isinstance(command, str):
+            result = subprocess.run(
+                command,
+                shell=True,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+        else:
+            result = subprocess.run(
+                command,
+                shell=False,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
-        return e.stderr.strip()
+        return (e.stdout or e.stderr or "").strip()
 
 def processConfigFile():
     f = open("/etc/vigil.conf", "r")
