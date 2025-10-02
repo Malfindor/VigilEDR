@@ -38,9 +38,9 @@ def beginServerInstall():
     print("Beginning Vigil manager installation", flush=True)
     print("Installing dependences", flush=True)
     if os.path.exists('/usr/bin/apt'):
-        os.system('apt install -y mariadb')
+        os.system('apt install -y mariadb-server')
     elif os.path.exists('/usr/bin/yum'):
-        os.system('yum install -y mariadb')
+        os.system('yum install -y mariadb-server')
     os.system('systemctl enable mariadb')
     os.system('systemctl start mariadb')
     print("Please enter the MariaDB root password when prompted to set up the Vigil database.", flush=True)
@@ -73,4 +73,4 @@ if not args.client and not args.server:
 if args.client:
     beginClientInstall()
 elif args.server:
-    print("NOT IMPLEMENTED", flush=True)
+    beginServerInstall()
