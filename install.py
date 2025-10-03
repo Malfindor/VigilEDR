@@ -26,6 +26,7 @@ def beginClientInstall():
         os.system('yum install -y python3 python3-pip')
     os.system('mkdir -p /usr/local/vigil')
     os.system('mkdir -p /root/quarantined_services')
+    os.system("mkdir /var/log/vigil.log")
     os.rename('./vigil.conf', '/etc/vigil.conf')
     os.rename('./core.py', '/usr/local/vigil/core.py')
     os.rename('./configCheck.py', '/usr/local/vigil/configCheck.py')

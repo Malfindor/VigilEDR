@@ -5,6 +5,7 @@ import threading
 import signal
 from typing import Union, Sequence
 from systemd.daemon import notify
+from datetime import datetime
 
 stop = False
 allowedUsers = []
@@ -51,9 +52,9 @@ def checkUsers():
         userSplit = user.split(":")
         if (not userSplit[0] in allowedUsers):
             if (userSplit[0] in blacklistedUsers) or ((userSplit[2] == '0') or (userSplit[3] == '0')):
-                print("Blacklisted user '" + userSplit[0] + "' exists on system!", flush=True)
+                triggerAlert("Blacklisted user '" + userSplit[0] + "' exists on system!")
             elif (int(userSplit[2]) >= 1000):
-                print("Unrecognized user '" + userSplit[0] + "' exists on system!", flush=True)
+                triggerAlert("Unrecognized user '" + userSplit[0] + "' exists on system!")
 
 def checkProcesses():
     processes = getOutputOf("ps aux")
@@ -61,7 +62,7 @@ def checkProcesses():
     for process in processesSplit:
         for flag in reverseShellFlags:
             if flag in process:
-                print("Potential reverse shell detected: " + process, flush=True)
+                triggerAlert("Potential reverse shell detected: " + process)
 
 def checkIPs():
     connections = getOutputOf("who")
@@ -76,7 +77,7 @@ def checkIPs():
                 date = ipSplit[2]
                 time = ipSplit[3]
                 remoteIP = ipSplit[4]
-                print("Unrecognized IP address '" + remoteIP + "' connected to the system as user '" + user + "' on " + date + " at " + time, flush=True)
+                triggerAlert("Unrecognized IP address '" + remoteIP + "' connected to the system as user '" + user + "' on " + date + " at " + time)
 
 def checkCrontab():
     f = open("/etc/crontab", "r")
@@ -84,7 +85,7 @@ def checkCrontab():
     f.close()
     if len(contents) > 0:
         if (contents != "\n"):
-            print("Contents found in /etc/crontab:" + contents, flush=True)
+            triggerAlert("Contents found in /etc/crontab:" + contents)
 
 def checkServices():
     services = getOutputOf("systemctl list-units --type=service --state=running")
@@ -92,11 +93,16 @@ def checkServices():
     for service in servicesSplit:
         for blacklistedService in blacklistedServices:
             if blacklistedService in service:
-                print("Blacklisted service '" + blacklistedService + "' detected. Killing and quarantining.", flush=True)
+                triggerAlert("Blacklisted service '" + blacklistedService + "' detected. Killing and quarantining.")
                 serviceName = service.split(" ")[0]
                 os.system("systemctl stop " + serviceName)
                 os.system("systemctl disable " + serviceName)
                 os.system("mv /etc/systemd/system/" + serviceName + " /root/quarantined_services/")
+
+def triggerAlert(alert):
+    f = open("/var/log/vigil.log", "a")
+    f.write('[' + datetime.now.strftime("%Y-%m-%d %H:%M:%S") + '] - ' + alert + "\n")
+    f.close()
 
 def getOutputOf(command: Union[str, Sequence[str]]) -> str:
     """
