@@ -14,5 +14,16 @@ CREATE TABLE IF NOT EXISTS Alerts (
     agent_id INT NOT NULL,
     alert_time DATETIME NOT NULL,
     message TEXT,
-    CONSTRAINT FK_Alerts_Agents FOREIGN KEY (agent_id) REFERENCES Agents(id) ON DELETE CASCADE
+    ack BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (agent_id) REFERENCES Agents(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS AlertsArchive (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  original_alert_id INT NOT NULL,
+  agent_ip VARCHAR(45) NOT NULL,
+  time DATETIME NOT NULL,
+  message TEXT,
+  ingest_time DATETIME,
+  archived_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

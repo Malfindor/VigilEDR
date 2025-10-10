@@ -7,6 +7,8 @@ from typing import Union, Sequence
 from systemd.daemon import notify
 from datetime import datetime
 
+wd_usec = os.getenv("WATCHDOG_USEC")
+interval = max(int(int(wd_usec)/2/1_000_000), 1) if wd_usec else None
 stop = False
 allowedUsers = []
 blacklistedUsers = []
@@ -29,9 +31,6 @@ def pump():
         sleep(interval)
 
 threading.Thread(target=pump, daemon=True).start()
-
-wd_usec = os.getenv("WATCHDOG_USEC")
-interval = max(int(int(wd_usec)/2/1_000_000), 1) if wd_usec else None
 
 def run():
     processConfigFile()
