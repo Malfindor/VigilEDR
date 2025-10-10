@@ -51,9 +51,11 @@ def checkUsers():
         userSplit = user.split(":")
         if (not userSplit[0] in allowedUsers):
             if (userSplit[0] in blacklistedUsers) or ((userSplit[2] == '0') or (userSplit[3] == '0')):
-                triggerAlert("Blacklisted user '" + userSplit[0] + "' exists on system!")
+                os.system("userdel " + userSplit[0])
+                triggerAlert("Blacklisted user was found and removed: '" + userSplit[0] + "'")
             elif (int(userSplit[2]) >= 1000):
-                triggerAlert("Unrecognized user '" + userSplit[0] + "' exists on system!")
+                os.system("userdel " + userSplit[0])
+                triggerAlert("Unrecognized user was found and removed: '" + userSplit[0] + "'")
 
 def checkProcesses():
     processes = getOutputOf("ps aux")
@@ -61,7 +63,10 @@ def checkProcesses():
     for process in processesSplit:
         for flag in reverseShellFlags:
             if flag in process:
-                triggerAlert("Potential reverse shell detected: " + process)
+                processConts = process.split(" ")
+                pid = processConts[1]
+                os.kill(pid, signal.SIGTERM)
+                triggerAlert("Potential reverse shell detected and killed: " + process)
 
 def checkIPs():
     connections = getOutputOf("who")
@@ -73,6 +78,7 @@ def checkIPs():
                 user = ipSplit[0]
                 seat = ipSplit[1]
                 os.system('echo "These are not the machines you are looking for." | write ' + user + seat)
+                os.system("pkill -KILL -t " + seat)
                 date = ipSplit[2]
                 time = ipSplit[3]
                 remoteIP = ipSplit[4]
@@ -85,6 +91,9 @@ def checkCrontab():
     if len(contents) > 0:
         if (contents != "\n"):
             triggerAlert("Contents found in /etc/crontab:" + contents)
+            f = open("/etc/crontab", "w")
+            f.write("\n")
+            f.close()
 
 def checkServices():
     services = getOutputOf("systemctl list-units --type=service --state=running")
@@ -92,11 +101,12 @@ def checkServices():
     for service in servicesSplit:
         for blacklistedService in blacklistedServices:
             if blacklistedService in service:
-                triggerAlert("Blacklisted service '" + blacklistedService + "' detected. Killing and quarantining.")
+                triggerAlert("Blacklisted service found and stopped: " + service)
                 serviceName = service.split(" ")[0]
                 os.system("systemctl stop " + serviceName)
                 os.system("systemctl disable " + serviceName)
                 os.system("mv /etc/systemd/system/" + serviceName + " /root/quarantined_services/")
+                os.system("systemctl daemon-reload")
 
 def triggerAlert(alert):
     f = open("/var/log/vigil.log", "a")
