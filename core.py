@@ -100,7 +100,7 @@ def checkServices():
 
 def triggerAlert(alert):
     f = open("/var/log/vigil.log", "a")
-    f.write('[' + datetime.now.strftime("%Y-%m-%d %H:%M:%S") + '] - ' + alert + "\n")
+    f.write('[' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '] - ' + alert + "\n")
     f.close()
 
 def getOutputOf(command: Union[str, Sequence[str]]) -> str:
