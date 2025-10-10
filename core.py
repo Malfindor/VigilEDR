@@ -64,7 +64,7 @@ def checkProcesses():
         for flag in reverseShellFlags:
             if flag in process:
                 processConts = process.split(" ")
-                pid = processConts[1]
+                pid = int(processConts[1])
                 os.kill(pid, signal.SIGTERM)
                 triggerAlert("Potential reverse shell detected and killed: " + process)
 
@@ -72,16 +72,16 @@ def checkIPs():
     connections = getOutputOf("who")
     connectionsSplit = connections.split("\n")
     for connection in connectionsSplit:
-        if len(connection) > 5:
+        if len(connection) >= 5:
             ipSplit = connection[4].split('.')
             if (len(ipSplit) == 4) and (connection[4] not in allowedIPs):
-                user = ipSplit[0]
-                seat = ipSplit[1]
-                os.system('echo "These are not the machines you are looking for." | write ' + user + seat)
+                user = connection[0]
+                seat = connection[1]
+                os.system('echo "These are not the machines you are looking for." | write ' + user + " " + seat)
                 os.system("pkill -KILL -t " + seat)
-                date = ipSplit[2]
-                time = ipSplit[3]
-                remoteIP = ipSplit[4]
+                date = connection[2]
+                time = connection[3]
+                remoteIP = connection[4]
                 triggerAlert("Unrecognized IP address '" + remoteIP + "' connected to the system as user '" + user + "' on " + date + " at " + time)
 
 def checkCrontab():
