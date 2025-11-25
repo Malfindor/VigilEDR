@@ -67,7 +67,10 @@ def beginServerInstall():
     os.rename('./server/agent-handler.py', '/usr/local/vigil/agentHandler.py')
     os.rename('./server/manager.py', '/usr/local/vigil/manager.py')
     os.rename('./server/listener.py', '/usr/local/vigil/listener.py')
-    os.rename('./server/handler.py', '/usr/local/vigil/handler.py')
+    os.rename('./server/event-viewer.py', '/bin/vigil')
+    os.system('chmod +x /bin/vigil')
+    os.rename('./server/control-panel.py', '/bin/vigilAdmin')
+    os.system('chmod +x /bin/vigilAdmin')
     os.rename('./server/vigil-manager.service', '/etc/systemd/system/vigil.service')
     os.system('systemctl daemon-reload')
 

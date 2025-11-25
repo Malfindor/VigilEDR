@@ -133,7 +133,16 @@ def checkServerConfig():
 agentErrors = checkAgentConfig()
 serverErrors = checkServerConfig()
 
-if not len(agentErrors) == 0:
+if len(serverErrors) > 0 and len(agentErrors) > 0:
+    needToError = True
+else:
+    sys.exit(0)
+
+if len(agentErrors) > 0:
+    print("Errors found in agent configuration file:", file=sys.stderr, flush=True)
     for error in agentErrors:
-        print(error, file=sys.stderr, flush=True)
-    sys.exit(1)
+        print(" - " + error, file=sys.stderr, flush=True)
+if len(serverErrors) > 0:
+    print("Errors found in server configuration file:", file=sys.stderr, flush=True)
+    for error in serverErrors:
+        print(" - " + error, file=sys.stderr, flush=True)

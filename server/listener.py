@@ -6,14 +6,14 @@ import mysql.connnector
 
 def parseConf():
     conf = ["127.0.0.1", 5678]
-    f = open('/etc/vigil.conf', 'r')
+    f = open('/etc/vigil/server.conf', 'r')
     confContents = f.read()
     confContentsSplit = confContents.split('\n')
     for line in confContentsSplit:
         if not line[0] == '#':
-            if line.split('=')[0] == 'bind_ip':
+            if line.split('=')[0] == 'listen_ip':
                 conf[0] = line.split('=')[1][1:-1]
-            elif line.split('=')[0] == 'bind_port':
+            elif line.split('=')[0] == 'listen_port':
                 conf[1] = line.split('=')[1]
     return conf
 
@@ -83,6 +83,6 @@ def run():
         data = conn.recv(4096)
         if data:
             message = data.decode(errors="ignore")
-            threading.Thread(target=handleMessage, daemon=True).start() # Add variables 
+            threading.Thread(target=handleMessage, args=(message, agent), daemon=True).start()
         conn.close()
 run()
