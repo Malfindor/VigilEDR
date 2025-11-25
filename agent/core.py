@@ -5,6 +5,7 @@ import threading
 import signal
 from systemd.daemon import notify
 from datetime import datetime
+import socket
 
 try:
     string_types = (basestring,)
@@ -35,8 +36,26 @@ def pump():
 
 threading.Thread(target=pump, daemon=True).start()
 
+def sendAlert(alert, managerIP, managerPort):
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        server_address = (managerIP, int(managerPort))
+        message = alert.encode()
+        sock.sendto(message, server_address)
+        sock.close()
+    except:
+        notify("STATUS=Failed to send alert to manager: " + alert)
+
 def run():
     processConfigFile()
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        server_address = (managerIP, int(managerPort))
+        message = ("checkin").encode()
+        sock.sendto(message, server_address)
+        sock.close()
+    except:
+        notify("STATUS=Failed to check in with manager")
     while not stop:
         checkUsers()
         checkProcesses()
@@ -116,6 +135,7 @@ def triggerAlert(alert):
     f = open("/var/log/vigil.log", "a")
     f.write('[' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '] - ' + alert + "\n")
     f.close()
+    threading.Thread(target=sendAlert, args=(alert, managerIP, managerPort), daemon=True).start()
 
 def getOutputOf(command):
     """
@@ -144,7 +164,7 @@ def getOutputOf(command):
         return str(e).strip()
 
 def processConfigFile():
-    f = open("/etc/vigil.conf", "r")
+    f = open("/etc/vigil/agent.conf", "r")
     lines = f.readlines()
     f.close()
     for line in lines:
@@ -166,6 +186,8 @@ def processConfigFile():
                 servicesSplit = lineSplit[1].split(",")
                 for service in servicesSplit:
                     blacklistedServices.append(service.strip())
-
-if __name__ == "__main__":
-    run()
+            elif lineSplit[0] == "manager_ip":
+                global managerIP; managerIP = lineSplit[1].strip()
+            elif lineSplit[0] == "manager_port":
+                global managerPort; managerPort = int(lineSplit[1].strip())
+run()
