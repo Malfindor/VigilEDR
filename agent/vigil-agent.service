@@ -11,6 +11,7 @@ ExecCondition=/usr/bin/python3 /usr/local/vigil/configCheck.py
 ExecStart=/usr/bin/python3 /usr/local/vigil/core.py
 StartLimitInterval=1s
 StartLimitBurst=999
+NotifyAccess=All
 
 [Install]
 WantedBy=multi-user.target

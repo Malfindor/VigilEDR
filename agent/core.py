@@ -38,10 +38,9 @@ threading.Thread(target=pump, daemon=True).start()
 
 def sendAlert(alert, managerIP, eventPort):
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        server_address = (managerIP, int(eventPort))
-        message = alert.encode()
-        sock.sendto(message, server_address)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((managerIP, int(eventPort)))
+        sock.sendall(alert.encode())
         sock.close()
     except:
         notify("STATUS=Failed to send alert to manager: " + alert)
@@ -49,10 +48,9 @@ def sendAlert(alert, managerIP, eventPort):
 def run():
     processConfigFile()
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        server_address = (managerIP, int(eventPort))
-        message = ("checkin").encode()
-        sock.sendto(message, server_address)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((managerIP, int(eventPort)))
+        sock.sendall("checkin".encode())
         sock.close()
     except:
         notify("STATUS=Failed to check in with manager")

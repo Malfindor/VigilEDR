@@ -1,5 +1,5 @@
 import socket
-import mysql.connnector
+import mysql.connector
 from datetime import datetime, timedelta
 import threading
 
@@ -25,10 +25,9 @@ def triggerAlert(alert):
 
 def sendAlert(alert, managerIP, eventPort):
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        server_address = (managerIP, int(eventPort))
-        message = alert.encode()
-        sock.sendto(message, server_address)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((managerIP, int(eventPort)))
+        sock.sendall(alert.encode())
         sock.close()
     except:
         pass
@@ -86,28 +85,45 @@ def run():
     getConfig()
     while True:
         agents = updateAgentList()
+
         for agent in agents:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.settimeout(5)
+
             try:
+                # TCP connect
                 s.connect((agent, managerPort))
+
+                # Send TCP message
                 s.sendall("check".encode("utf-8"))
+
+                # Receive response
                 data = s.recv(1024)
-                response = data.decode("utf-8").strip()
+                response = data.decode("utf-8", errors="ignore").strip()
+
                 if response == "check":
                     refreshHeardFromTime(agent)
                 else:
-                    f = open("/var/log/vigil_server.log", "a")
-                    f.write(f"[{datetime.strftime('%Y-%m-%d %H:%M:%S')}] Unexpected response from agent {agent}: {response}\n")
-                    f.close()
+                    with open("/var/log/vigil_server.log", "a") as f:
+                        f.write(
+                            f"[{datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')}] "
+                            f"Unexpected response from agent {agent}: {response}\n"
+                        )
+
                 s.close()
-            except (socket.timeout, ConnectionRefusedError):
-                f = open("/var/log/vigil_server.log", "a")
-                f.write(f"[{datetime.strftime('%Y-%m-%d %H:%M:%S')}] No response from agent {agent}\n")
-                f.close()
+
+            except (socket.timeout, ConnectionRefusedError, OSError):
+                with open("/var/log/vigil_server.log", "a") as f:
+                    f.write(
+                        f"[{datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')}] "
+                        f"No response from agent {agent}\n"
+                    )
                 s.close()
+
+            # If an agent hasn't checked in for over an hour
             if agentTimedOut(agent):
                 triggerAlert("More than 1 hour has passed since last heard from agent: " + agent)
+
         threading.Event().wait(300)
 
 run()

@@ -2,7 +2,7 @@
 import socket
 import threading
 from datetime import datetime
-import mysql.connnector
+import mysql.connector
 
 def parseConf():
     conf = ["127.0.0.1", 5678]
@@ -10,13 +10,14 @@ def parseConf():
     confContents = f.read()
     confContentsSplit = confContents.split('\n')
     for line in confContentsSplit:
-        if not line[0] == '#':
-            if line.split('=')[0] == 'listen_ip':
-                conf[0] = line.split('=')[1][1:-1]
-            elif line.split('=')[0] == 'event_port':
-                conf[1] = line.split('=')[1]
-            elif line.split('=')[0] == 'sql_user':
-                global sqlUser; sqlUser = line.split('=')[1]
+        if not len(line) == 0:
+            if not line[0] == '#':
+                if line.split('=')[0] == 'listen_ip':
+                    conf[0] = line.split('=')[1]
+                elif line.split('=')[0] == 'event_port':
+                    conf[1] = line.split('=')[1]
+                elif line.split('=')[0] == 'sql_user':
+                    global sqlUser; sqlUser = line.split('=')[1]
     return conf
 
 def handleMessage(message, agent):

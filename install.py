@@ -47,7 +47,7 @@ def beginServerInstall():
     os.system('systemctl enable mariadb')
     os.system('systemctl start mariadb')
     print("Please enter the MariaDB root password when prompted to set up the Vigil database.", flush=True)
-    os.system('mysql -u root < ./db_setup.sql')
+    os.system('mysql -u root < ./server/db_setup.sql')
     print("Installing local client", flush=True)
     if os.path.exists('/usr/local/vigil'):
         print("Vigil appears to already be installed. If this is an error, remove /usr/local/vigil, then try again.", flush=True)
@@ -57,6 +57,8 @@ def beginServerInstall():
         os.system('apt install -y python3 python3-pip')
     elif os.path.exists('/usr/bin/yum'):
         os.system('yum install -y python3 python3-pip')
+    os.system('pip3 install mysql-connector-python')
+    print("Setting up Vigil files", flush=True)
     os.system('mkdir -p /usr/local/vigil')
     os.system('mkdir -p /root/quarantined_services')
     os.system("touch /var/log/vigil.log")
@@ -74,6 +76,7 @@ def beginServerInstall():
     os.rename('./server/control-panel.py', '/bin/vigilAdmin')
     os.system('chmod +x /bin/vigilAdmin')
     os.rename('./server/vigil-manager.service', '/etc/systemd/system/vigil.service')
+    os.system('restorecon -v /etc/systemd/system/vigil.service') # SELinux support
     os.system('systemctl daemon-reload')
 
 if not os.geteuid() == 0:
