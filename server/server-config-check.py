@@ -4,13 +4,14 @@ import os
 
 def checkAgentConfig():
     managerIpPres = False
-    managerPortPres = False
+    managementPortPres = False
+    eventPortPres = False
     allowedUsersPres = False
     blacklistedUsersPres = False
     allowedIpsPres = False
     blacklistedServicesPres = False
     if not os.path.exists('/etc/vigil/agent.conf'):
-        print("Agent config file not found. Replace or ensure that the config file is located at /etc/vigil/agent.conf", file=sys.stderr, flush=True)
+        print("Config file not found. Replace or ensure that the config file is located at /etc/vigil.conf", file=sys.stderr, flush=True)
         sys.exit(2)
     errors = []
     f = open('/etc/vigil/agent.conf', 'r')
@@ -32,12 +33,18 @@ def checkAgentConfig():
                     valuesSplit = line[1].split(',')
                     if len(valuesSplit) > 1:
                         errors.append("Multiple values for variable 'manager_ip' on line " + str(lineNum))
-                if line[0] == 'manager_port':
-                    managerPortPres = True
+                if line[0] == 'management_port':
+                    managementPortPres = True
                     if len(line[1]) == 0:
-                        errors.append("Missing value for variable 'manager_port' on line " + str(lineNum))
+                        errors.append("Missing value for variable 'management_port' on line " + str(lineNum))
                     elif (int(line[1]) < 1) or (int(line[1]) > 65535):
-                        errors.append("value out of range for variable 'manager_port' on line " + str(lineNum))
+                        errors.append("value out of range for variable 'management_port' on line " + str(lineNum))
+                if line[0] == 'event_port':
+                    eventPortPres = True
+                    if len(line[1]) == 0:
+                        errors.append("Missing value for variable 'event_port' on line " + str(lineNum))
+                    elif (int(line[1]) < 1) or (int(line[1]) > 65535):
+                        errors.append("value out of range for variable 'event_port' on line " + str(lineNum))
                 if line[0] == 'allowed_users':
                     allowedUsersPres = True
                     if len(line[1]) == 0:
@@ -77,8 +84,10 @@ def checkAgentConfig():
 
     if not managerIpPres:
         errors.append("Missing variable 'manager_ip'")
-    if not managerPortPres:
+    if not managementPortPres:
         errors.append("Missing variable 'manager_port'")
+    if not eventPortPres:
+        errors.append("Missing variable 'event_port'")
     if not allowedUsersPres:
         errors.append("Missing variable 'allowed_users'")
     if not blacklistedUsersPres:
@@ -92,6 +101,8 @@ def checkAgentConfig():
 def checkServerConfig():
     listenIpPres = False
     listenPortPres = False
+    eventPortPres = False
+    sqlUserPres = False
     if not os.path.exists('/etc/vigil/server.conf'):
         print("Server config file not found. Replace or ensure that the config file is located at /etc/vigil/server.conf", file=sys.stderr, flush=True)
         sys.exit(2)
@@ -118,14 +129,28 @@ def checkServerConfig():
                 if line[0] == 'manager_port':
                     listenPortPres = True
                     if len(line[1]) == 0:
-                        errors.append("Missing value for variable 'listen_port' on line " + str(lineNum))
+                        errors.append("Missing value for variable 'manager_port' on line " + str(lineNum))
                     elif (int(line[1]) < 1) or (int(line[1]) > 65535):
-                        errors.append("value out of range for variable 'listen_port' on line " + str(lineNum))
+                        errors.append("value out of range for variable 'manager_port' on line " + str(lineNum))
+                if line[0] == 'event_port':
+                    eventPortPres = True
+                    if len(line[1]) == 0:
+                        errors.append("Missing value for variable 'event_port' on line " + str(lineNum))
+                    elif (int(line[1]) < 1) or (int(line[1]) > 65535):
+                        errors.append("value out of range for variable 'event_port' on line " + str(lineNum))
+                if line[0] == 'sql_user':
+                    sqlUserPres = True
+                    if len(line[1]) == 0:
+                        errors.append("Missing value for variable 'sql_user' on line " + str(lineNum))
         
     if not listenIpPres:
         errors.append("Missing variable 'listen_ip'")
     if not listenPortPres:
-        errors.append("Missing variable 'listen_port'")
+        errors.append("Missing variable 'manager_port'")
+    if not eventPortPres:
+        errors.append("Missing variable 'event_port'")
+    if not sqlUserPres:
+        errors.append("Missing variable 'sql_user'")
 
     
     return errors

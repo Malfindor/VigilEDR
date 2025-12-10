@@ -9,14 +9,14 @@ def getConfig():
             lineSplit = line.split("=")
             if lineSplit[0] == "manager_ip":
                 global managerIP; managerIP = lineSplit[1].strip()
-            elif lineSplit[0] == "manager_port":
-                global managerPort; managerPort = int(lineSplit[1].strip())
+            elif lineSplit[0] == "management_port":
+                global managementPort; managementPort = int(lineSplit[1].strip())
 def main():
     getConfig()
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.bind(("0.0.0.0", managerPort))
+    s.bind(("0.0.0.0", managementPort))
     s.listen(5)
-    print("Vigil agent listener started on port: " + str(managerPort))
+    print("Vigil agent listener started on port: " + str(managementPort))
     while True:
         conn, addr = s.accept()
         if addr is not managerIP:
@@ -24,7 +24,9 @@ def main():
             continue
         data = conn.recv(1024)
         command = data.decode("utf-8").strip()
-        if command == "status":
+        if command == "check":
+            conn.sendall("check".encode("utf-8"))
+        elif command == "status":
             pass # Pending status implementation
 
 main()

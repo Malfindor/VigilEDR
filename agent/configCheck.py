@@ -4,7 +4,8 @@ import os
 
 def checkAgentConfig():
     managerIpPres = False
-    managerPortPres = False
+    managementPortPres = False
+    eventPortPres = False
     allowedUsersPres = False
     blacklistedUsersPres = False
     allowedIpsPres = False
@@ -32,12 +33,18 @@ def checkAgentConfig():
                     valuesSplit = line[1].split(',')
                     if len(valuesSplit) > 1:
                         errors.append("Multiple values for variable 'manager_ip' on line " + str(lineNum))
-                if line[0] == 'manager_port':
-                    managerPortPres = True
+                if line[0] == 'management_port':
+                    managementPortPres = True
                     if len(line[1]) == 0:
-                        errors.append("Missing value for variable 'manager_port' on line " + str(lineNum))
+                        errors.append("Missing value for variable 'management_port' on line " + str(lineNum))
                     elif (int(line[1]) < 1) or (int(line[1]) > 65535):
-                        errors.append("value out of range for variable 'manager_port' on line " + str(lineNum))
+                        errors.append("value out of range for variable 'management_port' on line " + str(lineNum))
+                if line[0] == 'event_port':
+                    eventPortPres = True
+                    if len(line[1]) == 0:
+                        errors.append("Missing value for variable 'event_port' on line " + str(lineNum))
+                    elif (int(line[1]) < 1) or (int(line[1]) > 65535):
+                        errors.append("value out of range for variable 'event_port' on line " + str(lineNum))
                 if line[0] == 'allowed_users':
                     allowedUsersPres = True
                     if len(line[1]) == 0:
@@ -77,8 +84,10 @@ def checkAgentConfig():
 
     if not managerIpPres:
         errors.append("Missing variable 'manager_ip'")
-    if not managerPortPres:
+    if not managementPortPres:
         errors.append("Missing variable 'manager_port'")
+    if not eventPortPres:
+        errors.append("Missing variable 'event_port'")
     if not allowedUsersPres:
         errors.append("Missing variable 'allowed_users'")
     if not blacklistedUsersPres:

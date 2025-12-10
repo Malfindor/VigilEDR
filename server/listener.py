@@ -13,8 +13,10 @@ def parseConf():
         if not line[0] == '#':
             if line.split('=')[0] == 'listen_ip':
                 conf[0] = line.split('=')[1][1:-1]
-            elif line.split('=')[0] == 'listen_port':
+            elif line.split('=')[0] == 'event_port':
                 conf[1] = line.split('=')[1]
+            elif line.split('=')[0] == 'sql_user':
+                global sqlUser; sqlUser = line.split('=')[1]
     return conf
 
 def handleMessage(message, agent):
@@ -36,7 +38,7 @@ def saveToSQL(message, agent):
         print("Invalid datetime format:", raw_time)
         return
 
-    conn = mysql.connector.connect(user="user", password="pass", host="localhost", database="Vigil_DB")
+    conn = mysql.connector.connect(user=sqlUser, password="pass", host="localhost", database="Vigil_DB")
     cursor = conn.cursor()
 
     query = """

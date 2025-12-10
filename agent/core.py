@@ -36,10 +36,10 @@ def pump():
 
 threading.Thread(target=pump, daemon=True).start()
 
-def sendAlert(alert, managerIP, managerPort):
+def sendAlert(alert, managerIP, eventPort):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        server_address = (managerIP, int(managerPort))
+        server_address = (managerIP, int(eventPort))
         message = alert.encode()
         sock.sendto(message, server_address)
         sock.close()
@@ -50,7 +50,7 @@ def run():
     processConfigFile()
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        server_address = (managerIP, int(managerPort))
+        server_address = (managerIP, int(eventPort))
         message = ("checkin").encode()
         sock.sendto(message, server_address)
         sock.close()
@@ -135,7 +135,7 @@ def triggerAlert(alert):
     f = open("/var/log/vigil.log", "a")
     f.write('[' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '] - ' + alert + "\n")
     f.close()
-    threading.Thread(target=sendAlert, args=(alert, managerIP, managerPort), daemon=True).start()
+    threading.Thread(target=sendAlert, args=(alert, managerIP, eventPort), daemon=True).start()
 
 def getOutputOf(command):
     """
@@ -188,6 +188,6 @@ def processConfigFile():
                     blacklistedServices.append(service.strip())
             elif lineSplit[0] == "manager_ip":
                 global managerIP; managerIP = lineSplit[1].strip()
-            elif lineSplit[0] == "manager_port":
-                global managerPort; managerPort = int(lineSplit[1].strip())
+            elif lineSplit[0] == "event_port":
+                global eventPort; eventPort = int(lineSplit[1].strip())
 run()

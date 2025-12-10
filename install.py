@@ -60,6 +60,7 @@ def beginServerInstall():
     os.system('mkdir -p /usr/local/vigil')
     os.system('mkdir -p /root/quarantined_services')
     os.system("touch /var/log/vigil.log")
+    os.system("touch /var/log/vigil_server.log")
     os.system("mkdir /etc/vigil")
     os.rename('./agent/agent.conf', '/etc/vigil/agent.conf')
     os.rename('./server/server.conf', '/etc/vigil/server.conf')
