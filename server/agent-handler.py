@@ -34,7 +34,7 @@ def sendAlert(alert, managerIP, eventPort):
         pass
 
 def updateAgentList():
-    conn = mysql.connector.connect(user=sqlUser, password="pass", host="localhost", database="Vigil_DB")
+    conn = mysql.connector.connect(user=sqlUser, password="", host="localhost", database="Vigil_DB")
     cursor = conn.cursor()
 
     cursor.execute("SELECT ip FROM Agents;")
@@ -46,7 +46,7 @@ def updateAgentList():
     return ips
     
 def refreshHeardFromTime(agent):
-    conn = mysql.connector.connect(user=sqlUser, password="pass", host="localhost", database="Vigil_DB")
+    conn = mysql.connector.connect(user=sqlUser, password="", host="localhost", database="Vigil_DB")
     cursor = conn.cursor()
 
     sql = """
@@ -61,7 +61,7 @@ def refreshHeardFromTime(agent):
     conn.close()
 
 def agentTimedOut(ip_address: str) -> bool:
-    conn = mysql.connector.connect(user=sqlUser, password="pass", host="localhost", database="Vigil_DB")
+    conn = mysql.connector.connect(user=sqlUser, password="", host="localhost", database="Vigil_DB")
     cursor = conn.cursor()
 
     cursor.execute(

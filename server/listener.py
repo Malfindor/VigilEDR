@@ -38,7 +38,7 @@ def saveToSQL(message, agent):
         print("Invalid datetime format:", raw_time)
         return
 
-    conn = mysql.connector.connect(user=sqlUser, password="pass", host="localhost", database="Vigil_DB")
+    conn = mysql.connector.connect(user=sqlUser, password="", host="localhost", database="Vigil_DB")
     cursor = conn.cursor()
 
     query = """
@@ -59,7 +59,7 @@ def saveToSQL(message, agent):
     cursor.close()
     conn.close()
 def refreshHeardFromTime(agent):
-    conn = mysql.connector.connect(user="user", password="pass", host="localhost", database="Vigil_DB")
+    conn = mysql.connector.connect(user=sqlUser, password="", host="localhost", database="Vigil_DB")
     cursor = conn.cursor()
 
     sql = """
