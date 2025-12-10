@@ -72,10 +72,10 @@ def checkUsers():
         if (not userSplit[0] in allowedUsers):
             if (userSplit[0] in blacklistedUsers) or ((userSplit[2] == '0') or (userSplit[3] == '0')):
                 os.system("userdel " + userSplit[0])
-                triggerAlert("Blacklisted user was found and removed: '" + userSplit[0] + "'")
+                triggerAlert(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S') + " - Blacklisted user was found and removed: '" + userSplit[0] + "'")
             elif (int(userSplit[2]) >= 1000):
                 os.system("userdel " + userSplit[0])
-                triggerAlert("Unrecognized user was found and removed: '" + userSplit[0] + "'")
+                triggerAlert(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S') + " - Unrecognized user was found and removed: '" + userSplit[0] + "'")
 
 def checkProcesses():
     processes = getOutputOf("ps aux")
@@ -86,7 +86,7 @@ def checkProcesses():
                 processConts = process.split()
                 pid = processConts[1]
                 os.kill(int(pid), signal.SIGTERM)
-                triggerAlert("Potential reverse shell detected and killed: " + process)
+                triggerAlert(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S') + " - Potential reverse shell detected and killed: " + process)
 
 def checkIPs():
     connections = getOutputOf("who")
@@ -103,7 +103,7 @@ def checkIPs():
                 date = connection[2]
                 time = connection[3]
                 remoteIP = connection[4]
-                triggerAlert("Unrecognized IP address '" + remoteIP + "' connected to the system as user '" + user + "' on " + date + " at " + time)
+                triggerAlert(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S') + " - Unrecognized IP address '" + remoteIP + "' connected to the system as user '" + user + "' on " + date + " at " + time)
 
 def checkCrontab():
     f = open("/etc/crontab", "r")
@@ -111,7 +111,7 @@ def checkCrontab():
     f.close()
     if len(contents) > 0:
         if (contents != "\n"):
-            triggerAlert("Contents found in /etc/crontab:" + contents)
+            triggerAlert(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S') + " - Contents found in /etc/crontab:" + contents)
             f = open("/etc/crontab", "w")
             f.write("\n")
             f.close()
@@ -122,7 +122,7 @@ def checkServices():
     for service in servicesSplit:
         for blacklistedService in blacklistedServices:
             if blacklistedService in service:
-                triggerAlert("Blacklisted service found and stopped: " + service)
+                triggerAlert(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S') + " - Blacklisted service found and stopped: " + service)
                 serviceName = service.split()[0]
                 os.system("systemctl stop " + serviceName)
                 os.system("systemctl disable " + serviceName)
