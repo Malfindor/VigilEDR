@@ -6,7 +6,7 @@ def printHelp():
     print("""
 Vigil Installer
 ----------------
-Usage: vigilInstall [option]
+Usage: install.py [option]
           
 Options:
     -h, --help      Show this help message and exit
