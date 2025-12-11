@@ -85,7 +85,7 @@ def checkProcesses():
             if flag in process:
                 processConts = process.split()
                 pid = processConts[1]
-                os.kill(int(pid), signal.SIGTERM)
+                os.kill(int(pid), signal.SIGKILL)
                 triggerAlert(datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S') + " - Potential reverse shell detected and killed: " + process)
 
 def checkIPs():
