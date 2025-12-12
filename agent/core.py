@@ -6,6 +6,7 @@ import signal
 from systemd.daemon import notify
 from datetime import datetime
 import socket
+import re
 
 try:
     string_types = (basestring,)
@@ -82,7 +83,7 @@ def checkProcesses():
     processesSplit = processes.split("\n")
     for process in processesSplit:
         for flag in reverseShellFlags:
-            if flag in process:
+            if re.search(flag, process):
                 processConts = process.split()
                 pid = processConts[1]
                 os.kill(int(pid), signal.SIGKILL)
