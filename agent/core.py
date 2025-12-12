@@ -19,7 +19,7 @@ allowedUsers = []
 blacklistedUsers = []
 allowedIPs = []
 blacklistedServices = []
-reverseShellFlags = [r"python3?\s+-c\b", r"/bin/(ba)?sh\s+-i\b", r"nc\s+.*\s+-e\b", r"ncat\s+.*\s+-e\b", r"socat\s+.*EXEC\b"]
+reverseShellFlags = [r"python3?\s+-c\b", r"/bin/(ba)?sh\s+-i\b", r"nc\s+.*-e\b", r"ncat\s+.*-e\b", r"socat\s+.*EXEC\b"]
 
 def handle_sigterm(signum, frame):
     global stop; stop = True
