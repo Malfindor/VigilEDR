@@ -8,7 +8,7 @@ Type=notify
 Restart=on-failure
 Environment="PATH=/sbin:/bin:/usr/sbin:/usr/bin"
 ExecCondition=/usr/bin/python3 /usr/local/vigil/configCheck.py
-ExecStart=/usr/bin/python3 /usr/local/vigil/core.py
+ExecStart=/usr/bin/python3 /usr/local/vigil/manager.py
 StartLimitInterval=1s
 StartLimitBurst=999
 NotifyAccess=All

@@ -3,39 +3,15 @@ from time import sleep
 import os
 import threading
 import signal
-from systemd.daemon import notify
 from datetime import datetime
 import socket
 import re
 
-try:
-    string_types = (basestring,)
-except NameError:
-    string_types = (str,)   
-wd_usec = os.getenv("WATCHDOG_USEC")
-interval = max(int(int(wd_usec)/2000000), 1) if wd_usec else None
-stop = False
 allowedUsers = []
 blacklistedUsers = []
 allowedIPs = []
 blacklistedServices = []
 reverseShellFlags = [r"python3?\s+-c\b", r"/bin/(ba)?sh\s+-i\b", r"nc\s+.*-e\b", r"ncat\s+.*-e\b", r"socat\s+.*EXEC\b"]
-
-def handle_sigterm(signum, frame):
-    global stop; stop = True
-
-signal.signal(signal.SIGTERM, handle_sigterm)
-signal.signal(signal.SIGINT, handle_sigterm)
-
-notify("READY=1")
-notify("STATUS=Initializing…")
-
-def pump():
-    while not stop and interval:
-        notify("WATCHDOG=1")
-        sleep(interval)
-
-threading.Thread(target=pump, daemon=True).start()
 
 def sendAlert(alert, managerIP, eventPort):
     try:

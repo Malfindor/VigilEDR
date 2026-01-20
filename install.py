@@ -30,6 +30,7 @@ def beginClientInstall():
     os.system("mkdir /etc/vigil")
     os.rename('./agent/agent.conf', '/etc/vigil/agent.conf')
     os.rename('./agent/core.py', '/usr/local/vigil/core.py')
+    os.rename('./agent/manager.py', '/usr/local/vigil/manager.py')
     os.rename('./agent/agent-listener.py', '/usr/local/vigil/listener.py')
     os.rename('./agent/configCheck.py', '/usr/local/vigil/configCheck.py')
     os.rename('./agent/vigil-agent.service', '/etc/systemd/system/vigil.service')
