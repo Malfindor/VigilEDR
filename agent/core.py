@@ -13,6 +13,12 @@ allowedIPs = []
 blacklistedServices = []
 reverseShellFlags = [r"python3?\s+-c\b", r"/bin/(ba)?sh\s+-i\b", r"nc\s+.*-e\b", r"ncat\s+.*-e\b", r"socat\s+.*EXEC\b"]
 
+def handle_sigterm(signum, frame):
+    global stop; stop = True
+
+signal.signal(signal.SIGTERM, handle_sigterm)
+signal.signal(signal.SIGINT, handle_sigterm)
+
 def sendAlert(alert, managerIP, eventPort):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -20,7 +26,9 @@ def sendAlert(alert, managerIP, eventPort):
         sock.sendall(alert.encode())
         sock.close()
     except:
-        notify("STATUS=Failed to send alert to manager: " + alert)
+        f = open("/var/log/vigil.log", "a")
+        f.write('[' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '] - ' + "Failed to send alert to manager: " + alert + "\n")
+        f.close()
 
 def run():
     processConfigFile()
@@ -30,7 +38,9 @@ def run():
         sock.sendall("checkin".encode())
         sock.close()
     except:
-        notify("STATUS=Failed to check in with manager")
+        f = open("/var/log/vigil.log", "a")
+        f.write('[' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '] - ' + "Failed to check in with manager\n")
+        f.close()
     while not stop:
         checkUsers()
         checkProcesses()
@@ -38,7 +48,6 @@ def run():
         checkCrontab()
         checkServices()
         sleep(10)
-    notify("STOPPING=1")
 
 def checkUsers():
     f = open("/etc/passwd", "r")
