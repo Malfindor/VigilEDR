@@ -6,12 +6,15 @@ import signal
 from datetime import datetime
 import socket
 import re
+from xml.dom.minicompat import StringTypes
 
 allowedUsers = []
 blacklistedUsers = []
 allowedIPs = []
 blacklistedServices = []
 reverseShellFlags = [r"python3?\s+-c\b", r"/bin/(ba)?sh\s+-i\b", r"nc\s+.*-e\b", r"ncat\s+.*-e\b", r"socat\s+.*EXEC\b"]
+
+stop = False
 
 def handle_sigterm(signum, frame):
     global stop; stop = True
@@ -27,7 +30,7 @@ def sendAlert(alert, managerIP, eventPort):
         sock.close()
     except:
         f = open("/var/log/vigil.log", "a")
-        f.write('[' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '] - ' + "Failed to send alert to manager: " + alert + "\n")
+        f.write('[' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '] - ' + "Failed to send alert to manager\n")
         f.close()
 
 def run():
@@ -127,7 +130,7 @@ def getOutputOf(command):
     Accepts either a shell string or a list argv.
     """
     # shell=True if a single shell string; False if a list/tuple argv
-    shell = isinstance(command, string_types)
+    shell = isinstance(command, StringTypes)
 
     try:
         proc = subprocess.Popen(
