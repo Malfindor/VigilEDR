@@ -6,14 +6,13 @@ import signal
 from datetime import datetime
 import socket
 import re
-from xml.dom.minicompat import StringTypes
 
 allowedUsers = []
 blacklistedUsers = []
 allowedIPs = []
 blacklistedServices = []
 reverseShellFlags = [r"python3?\s+-c\b", r"/bin/(ba)?sh\s+-i\b", r"nc\s+.*-e\b", r"ncat\s+.*-e\b", r"socat\s+.*EXEC\b"]
-
+StringTypes = (str,)
 stop = False
 
 def handle_sigterm(signum, frame):
@@ -115,7 +114,10 @@ def checkServices():
                 serviceName = service.split()[0]
                 os.system("systemctl stop " + serviceName)
                 os.system("systemctl disable " + serviceName)
-                os.system("mv /etc/systemd/system/" + serviceName + " /root/quarantined_services/")
+                if os.path.exists('/etc/systemd/system/' + serviceName):
+                    os.system("mv /etc/systemd/system/" + serviceName + " /root/quarantined_services/")
+                elif os.path.exists('/lib/systemd/system/' + serviceName):
+                    os.system("mv /lib/systemd/system/" + serviceName + " /root/quarantined_services/")
                 os.system("systemctl daemon-reload")
 
 def triggerAlert(alert):
